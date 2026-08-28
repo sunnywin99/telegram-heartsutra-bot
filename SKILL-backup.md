@@ -14,8 +14,13 @@ A small Python backend that bridges Telegram and Google Sheets: the user
 texts a dedicated Telegram bot a plain positive integer (e.g. `108`, meaning
 "recited the Heart Sutra 108 times"), and the bot appends a row —
 date/time, this entry's count, running cumulative total — to a dedicated
-Google Sheet, then replies with the new total. Sending `總計`/`累計`/`/total`
-reports the current cumulative total without writing a row. This is the
+Google Sheet, then replies with the new total **and** today's cumulative
+total and the date recording started (e.g. `已記錄：這次 50 遍，今日累計
+60 遍，從 2026年8月25日 到今日總共累計 280 遍`, added commit `0bbccde`,
+2026-08-29). Today's total is computed on the fly by summing same-day rows
+— no extra sheet column was added. Sending `總計`/`累計`/`/total` still
+reports just the plain current cumulative total (not today's) without
+writing a row. This is the
 sibling project to [[project_telegram_calendar_bot]] — same architecture
 pattern (Telegram long polling + Render + a Google OAuth Desktop client),
 different Google API (Sheets instead of Calendar).
@@ -48,16 +53,19 @@ different Google API (Sheets instead of Calendar).
   changelog, this file is just an orientation summary.
 
 **Always re-read `bot.py` and run `git log --oneline` in the repo before
-making changes** — this file is a snapshot as of commit `870dfdf`
-(2026-08-25) and the code may have moved on since.
+making changes** — this file is a snapshot as of commit `0bbccde`
+(2026-08-29) and the code may have moved on since.
 
 ## Architecture
 
 ```
 Telegram user ──(a plain number, e.g. "108")──> bot.py (long polling, python-telegram-bot)
                                                      │
-                                                     ├─ read Sheet!C2:C last row → current cumulative
+                                                     ├─ read Sheet!A2:C all rows → first entry's date,
+                                                     │  current cumulative (last row's col C), today's
+                                                     │  existing sum (rows whose date == today)
                                                      ├─ new_total = current + this entry
+                                                     ├─ today_total = today's existing sum + this entry
                                                      │
                                                      └─ Google Sheets API (googleapiclient)
                                                           spreadsheets().values().append() on GOOGLE_SPREADSHEET_ID

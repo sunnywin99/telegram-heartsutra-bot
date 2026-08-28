@@ -76,8 +76,31 @@ def _get_current_total(service) -> int:
     return int(last_row[0])
 
 
-def _append_row(service, count: int, new_total: int):
-    now_str = datetime.now(TIMEZONE).strftime("%Y/%m/%d %H:%M:%S")
+def _get_recording_stats(service, today_str: str):
+    """回傳 (第一筆記錄的日期字串 YYYY/MM/DD, 目前累計總數, 今日已累計遍數)。"""
+    result = (
+        service.spreadsheets()
+        .values()
+        .get(spreadsheetId=GOOGLE_SPREADSHEET_ID, range=f"{GOOGLE_SHEET_NAME}!A2:C")
+        .execute()
+    )
+    rows = result.get("values", [])
+    if not rows:
+        return today_str, 0, 0
+
+    first_date_str = rows[0][0].split(" ")[0]
+    last_row = rows[-1]
+    grand_total = int(last_row[2]) if len(last_row) >= 3 and last_row[2] else 0
+    today_total = sum(
+        int(row[1])
+        for row in rows
+        if len(row) >= 2 and row[1] and row[0].startswith(today_str)
+    )
+    return first_date_str, grand_total, today_total
+
+
+def _append_row(service, count: int, new_total: int, now: datetime):
+    now_str = now.strftime("%Y/%m/%d %H:%M:%S")
     body = {"values": [[now_str, count, new_total]]}
     service.spreadsheets().values().append(
         spreadsheetId=GOOGLE_SPREADSHEET_ID,
@@ -123,16 +146,24 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     count = int(text)
+    now = datetime.now(TIMEZONE)
+    today_str = now.strftime("%Y/%m/%d")
     try:
-        current_total = _get_current_total(service)
+        first_date_str, current_total, today_existing = _get_recording_stats(service, today_str)
         new_total = current_total + count
-        _append_row(service, count, new_total)
+        today_total = today_existing + count
+        _append_row(service, count, new_total, now)
     except Exception:
         logger.exception("寫入 Google 試算表失敗")
         await update.message.reply_text("寫入 Google 試算表時發生錯誤，稍後再試一次。")
         return
 
-    await update.message.reply_text(f"已記錄：這次 {count} 遍，累計 {new_total} 遍 🙏")
+    first_date = datetime.strptime(first_date_str, "%Y/%m/%d")
+    first_date_fmt = f"{first_date.year}年{first_date.month}月{first_date.day}日"
+    await update.message.reply_text(
+        f"已記錄：這次 {count} 遍，今日累計 {today_total} 遍，"
+        f"從 {first_date_fmt} 到今日總共累計 {new_total} 遍 🙏"
+    )
 
 
 def _run_health_check_server():

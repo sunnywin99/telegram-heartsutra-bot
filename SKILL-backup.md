@@ -15,12 +15,16 @@ texts a dedicated Telegram bot a plain positive integer (e.g. `108`, meaning
 "recited the Heart Sutra 108 times"), and the bot appends a row —
 date/time, this entry's count, running cumulative total — to a dedicated
 Google Sheet, then replies with the new total **and** today's cumulative
-total and the date recording started (e.g. `已記錄：這次 50 遍，今日累計
-60 遍，從 2026年8月25日 到今日總共累計 280 遍`, added commit `0bbccde`,
-2026-08-29). Today's total is computed on the fly by summing same-day rows
-— no extra sheet column was added. Sending `總計`/`累計`/`/total` still
-reports just the plain current cumulative total (not today's) without
-writing a row. This is the
+total and the date recording started, in a compact format:
+`已記錄：+50 (60) , 280 (from 2026/08/25)` — `+N` this entry, `(X)` today's
+cumulative, `M` the grand total, `(from ...)` the first-ever recorded date.
+Today's total is computed on the fly by summing same-day rows — no extra
+sheet column was added. The reply format went through two iterations same
+day (2026-08-29): first a Chinese-sentence version (`0bbccde`), then this
+compact numeric version (`ebea3bf`) after the user found the sentence
+version too verbose — see [[project_telegram_heartsutra_bot]] for both.
+Sending `總計`/`累計`/`/total` still reports just the plain current
+cumulative total (not today's) without writing a row. This is the
 sibling project to [[project_telegram_calendar_bot]] — same architecture
 pattern (Telegram long polling + Render + a Google OAuth Desktop client),
 different Google API (Sheets instead of Calendar).
@@ -53,7 +57,7 @@ different Google API (Sheets instead of Calendar).
   changelog, this file is just an orientation summary.
 
 **Always re-read `bot.py` and run `git log --oneline` in the repo before
-making changes** — this file is a snapshot as of commit `0bbccde`
+making changes** — this file is a snapshot as of commit `ebea3bf`
 (2026-08-29) and the code may have moved on since.
 
 ## Architecture

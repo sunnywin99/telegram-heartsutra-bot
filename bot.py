@@ -158,11 +158,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("寫入 Google 試算表時發生錯誤，稍後再試一次。")
         return
 
-    first_date = datetime.strptime(first_date_str, "%Y/%m/%d")
-    first_date_fmt = f"{first_date.year}年{first_date.month}月{first_date.day}日"
     await update.message.reply_text(
-        f"已記錄：這次 {count} 遍，今日累計 {today_total} 遍，"
-        f"從 {first_date_fmt} 到今日總共累計 {new_total} 遍 🙏"
+        f"已記錄：+{count} ({today_total}) , {new_total} (from {first_date_str})"
     )
 
 

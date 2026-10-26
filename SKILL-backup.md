@@ -45,7 +45,8 @@ total without writing a row. Full-width digits (`１０８`) count as numbers.
 - Google Sheet: **「心經計數表」** in the user's own Google account, id
   `1jMwwaGaIgO3bLONxxvshxhDoSbzfdvIO9ndG4gGeX3s`, tab `計數紀錄`, header row
   `日期時間 / 本次遍數 / 累計遍數`.
-- Changelog: the telegram-heartsutra-bot-history repo and its Artifact —
+- Changelog: the telegram-heartsutra-bot-history repo and its Artifact
+  https://claude.ai/artifact/SgZm44m8QBKS6nKVm77vbV —
   authoritative; this file is an orientation summary.
 
 **Always re-read `src/` and run `git log --oneline` before making changes.**
@@ -102,5 +103,5 @@ needs to look up their Telegram id again.
       fast-forward `master`; Cloudflare auto-deploys.
    3. Add an `ENTRIES` item to telegram-heartsutra-bot-history's
       `index.html` (plain Traditional Chinese), commit/push, republish its
-      Artifact.
+      Artifact: https://claude.ai/artifact/SgZm44m8QBKS6nKVm77vbV
    4. Update this `SKILL-backup.md` (commit + push).
